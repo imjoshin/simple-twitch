@@ -16,14 +16,22 @@ $(document).ready(function(){
   //window.addEventListener ("load", myMain, false);
   var jsInitChecktimer = setInterval(checkForJS_Finish, 1000);
 
-  if(localStorage["chatWidth"] === null) localStorage["chatWidth"] = 250;
-  if(localStorage["chatFontSize"] === null) localStorage["chatFontSize"] = 8;
-  if(localStorage["enabled"] === null) localStorage["enabled"] = "true";
+  if(localStorage.getItem("chatWidth") === null) localStorage["chatWidth"] = 250;
+  if(localStorage.getItem("chatFontSize") === null) localStorage["chatFontSize"] = 8;
+  if(localStorage.getItem("enabled") === null) localStorage["enabled"] = "true";
 
   localStorage["enabled"] = "true";
   var enabled = (localStorage["enabled"] == "true");
   var chatWidth = localStorage["chatWidth"];
   var chatFontSize = localStorage["chatFontSize"];
+
+  //preset settings
+  settingsHeight = (enabled? 180 : 40);
+
+  //conditions
+  settingsShown = false;
+
+  console.log("localStorage:\n\tenabled: " + enabled + "\n\tchatWidth: " + chatWidth + "\n\tchatFontSize: " + chatFontSize);
 
   var css = {
     //left section
@@ -76,52 +84,43 @@ $(document).ready(function(){
     if ($(".dynamic-player").length) {
       clearInterval(jsInitChecktimer);
       if(enabled) injectCSS();
-      //injectPopup();
+      injectPopup();
     }
   }
 
   function injectPopup(){
     var buttonStyle = "width:20px; height: 20px; position: relative; top: 5px;";
-    var button = "<input type='image' src='http://joshjohnson.io/images/simple-twitch.png' class='settingsButton' style='" + buttonStyle + "'/>"
+    var button = "<input type='image' src='http://joshjohnson.io/images/simple-twitch.png' class='settingsButton' style='" + buttonStyle + "'/>";
     $(".chat-buttons-container").append(button);
 
     console.log("INJECTING POPUP");
-    var popupStyle = "z-index: 99; background-color: #000000; color: #ffffff;"
-    var popup = `
-    <div id='settingsDialog' style='" + popupStyle + "'>
-      Chat Font Size: <label id='chatFontSizeNum'>0</label><br/>
-      <input id='chatFontSizeRange' type='range' min='6' max='20'><br/>
-      Chat Width: <label id='chatWidthNum'>0</label><br/>
-      <input id='chatWidthRange' type='range' min='100' max='500'>
-
+    var settingsStyle = `
+      height: ` + settingsHeight + `px;
+      width: ` + $(".chat-room").width() + `px;
+      z-index: 99;
+      background-color: #000000;
+      color: #ffffff;
+      position: absolute;
+      bottom: -` + (settingsHeight + 50) + `px;`;
+    var settings = `
+    <div id='settings' style='` + settingsStyle + `'>
+      Enabled: <input class="enabled" type='checkbox'><br/>
+      Chat Font Size: <label class='chatFontSizeNum'>0</label><br/>
+      <input class='chatFontSizeRange' type='range' min='6' max='20'><br/>
+      Chat Width: <label class='chatWidthNum'>0</label><br/>
+      <input class='chatWidthRange' type='range' min='100' max='500'>
     </div>`;
-    $(".app-main").append(popup);
 
-    $( '#settingsDialog' ).dialog({
-  		title: 'Simple Twitch Settings',
-  		width: 500,
-  		height: 400,
-  		autoOpen: false,
-  		position: {
-  			my: "center",
-  			at: "center",
-  			of: window
-  		},
-  		show: {
-  			effect: "fadeIn",
-  			duration: 200
-  		},
-  		hide: {
-  			effect: "fadeOut",
-  			duration: 200
-  		},
-  		open:  function(e, ui) {
+    if(!enabled){
 
-      },
-  		close: function (e, ui) {
+    }
+    $("#right_col").append(settings);
+    $(".chatFontSizeNum").text(localStorage["chatFontSize"]);
+    $(".chatFontSizeRange").val(localStorage["chatFontSize"]);
+    $(".chatWidthNum").text(localStorage["chatWidth"]);
+    $(".chatWidthRange").val(localStorage["chatWidth"]);
+    console.log("Appended settings: \n\t\t\t" + settings);
 
-  		}
-  	});
   }
   function injectCSS() {
     console.log("INJECTING CSS");
@@ -139,8 +138,34 @@ $(document).ready(function(){
 
   $(".chat-buttons-container").delegate(".settingsButton", "click", function(){
     console.log("pressed");
-    $('#settingsDialog').dialog("open");
-    $("#settingsDialog").zIndex(9999);
+    if(!settingsShown){
+      $(".rightcol-content").animate({height: "-=" + (settingsHeight + 50)}, 300);
+      $("#settings").animate({bottom: "+=" + (settingsHeight + 50)}, 300);
+    }else{
+      $(".rightcol-content").animate({height: "+=" + (settingsHeight + 50)}, 300);
+      $("#settings").animate({bottom: "-=" + (settingsHeight + 50)}, 300);
+    }
+    settingsShown = !settingsShown;
+  });
+
+  $(document).on("change", ".chatFontSizeRange", function(){
+    localStorage["chatFontSize"] = $(".chatFontSizeRange").val();
+    chatFontSize = parseInt(localStorage["chatFontSize"]);
+    $(".chatFontSizeNum").text(chatFontSize);
+    $(".chat-line").attr("style", $(".chat-line").attr("style") + "; " + "font-size: " + chatFontSize + "px;");
+    $(".emoticon").attr("style", $(".emoticon").attr("style") + "; " + "height: " + (chatFontSize + 7) + "px; margin: " + (chatFontSize - 7) + "px;");
+  });
+
+  $(document).on("change", ".chatWidthRange", function(){
+    localStorage["chatWidthSize"] = $(".chatWidthRange").val();
+    chatWidth = parseInt(localStorage["chatWidthSize"]);
+    $(".chatWidthNum").text(chatWidth);
+    $("#main_col").css({"margin-right": chatWidth + "px"});
+    $(".tse-scroll-content").css({"width": chatWidth + "px"});
+    $(".dynamic-player").css({"width": ($(window).width() - chatWidth) + "px"});
+    $("#right_col").css({"width": chatWidth + "px"});
+    $(".chat-room").css({"width": chatWidth + "px"});
+    $(".chat-interface").css({"width": chatWidth + "px"});
   });
 
   $(".chat-lines").bind("DOMSubtreeModified",function(){

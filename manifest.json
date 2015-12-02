@@ -14,7 +14,7 @@
     {
       "run_at": "document_end",
       "matches": [ "http://www.twitch.tv/*"],
-      "js": ["js/jquery.min.js", "js/jquery-ui.js", "inject/inject.js"]
+      "js": ["js/jquery.min.js", "inject/inject.js"]
     }
   ]
 }
