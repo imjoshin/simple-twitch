@@ -1,6 +1,5 @@
 
 $(document).ready(function(){
-
   if(localStorage.getItem("enabled") === null) localStorage["enabled"] = "true";
   if(localStorage.getItem("chatLocation") === null) localStorage["chatLocation"] = "r";
   if(localStorage.getItem("chatWidth") === null) localStorage["chatWidth"] = 250;
@@ -13,6 +12,26 @@ $(document).ready(function(){
 
   //preset settings
   settingsHeight = (enabled ? 160 : 30);
+  console.log("STARTING: enabled = " + enabled);
+
+  if(enabled){
+    var overlaySettings = `
+      position:fixed;
+      top:0;
+      left:0;
+      bottom:0;
+      right:0;
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: #000000;
+       z-index: 101;
+    `;
+    var overlay = "<div id='overlay' style='" + overlaySettings + "'>";
+    $("body").append(overlay);
+    console.log("INPUT OVERLAY");
+  }
 
   //conditions
   settingsShown = false;
@@ -21,6 +40,7 @@ $(document).ready(function(){
   var css = {
     //left section
     "#left_col": "display: none;",
+    "#left_close": "display: none;",
     //video and stats display
     "#main_col": "margin-left: " + (chatLocation == "r" ? 0 : chatWidth) + "px; margin-right: " + (chatLocation == "r" ? chatWidth : 0) + "px; background-color: #000000;",
     "#right_col": "width: " + chatWidth + "px;" + (chatLocation == "r" ? "" : " left: 0px;"),
@@ -34,13 +54,14 @@ $(document).ready(function(){
     ".editable": "height: 0px;",
     ".title": "display:none;",
     //video logo
-    ".profile-link": "right: 0px;",
+    ".profile-link": "right: 0px; opacity: .5;",
     //channel container
     "#channel": "padding: 0px;",
     //channel information under video
-    "#channel_panels": "display: none;",
+    //"#channel_panels": "display: none;",
+    "#channel_panels p": "color: #ffffff",
     //buttons and channel stats under video
-    ".stats-and-actions": "padding: 0",
+    ".stats-and-actions": "padding: 0 10px;",
 
     //video
     ".dynamic-player": "width: " + ($(window).width() - chatWidth) + "px !important; height: " + ($(window).height() - 30) + "px !important;",
@@ -56,6 +77,7 @@ $(document).ready(function(){
     ".chat-lines": "font-size: " + chatFontSize + "px; background-color: #000000; color: #ffffff;",
     ".chat-line": "padding: 0; line-height: 17px",
     ".emoticon": "height: 15px; margin: " + (chatFontSize - 8) + "px;",
+    ".conversations-content": "display: none;",
     //sendchat stuff
     ".textarea-contain": "margin-bottom: 3px;",
 
@@ -73,6 +95,7 @@ $(document).ready(function(){
       localStorage["showingVideo"] = "true";
       if(enabled) injectCSS();
       injectPopup();
+      $("#overlay").fadeOut();
     }
   }
 

@@ -4,16 +4,20 @@
   "name": "Simple Twitch",
   "description": "
 	This extensions will simplify the Twitch by displaying only the video and chat.",
-  "version": "1.0.0",
+  "version": "1.0.1",
 
   "permissions": [
     "http://www.twitch.tv/*",
+    "https://www.twitch.tv/*",
     "tabs"
   ],
   "content_scripts": [
     {
       "run_at": "document_end",
-      "matches": [ "http://www.twitch.tv/*"],
+      "matches": [
+        "http://www.twitch.tv/*",
+        "https://www.twitch.tv/*"
+      ],
       "js": ["js/jquery.min.js", "inject/inject.js"]
     }
   ]
